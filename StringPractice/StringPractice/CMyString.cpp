@@ -1,85 +1,90 @@
 #include "CMyString.h"
 #include <iostream>
 #include <cstring>
+#include <stdexcept>
 
 #define MAXLENGTH 10 
-/*
-	char* m_pszData;
-	int m_nLength;
-*/
+
 using namespace std;
 
-
 CMyString::CMyString()
-	:	m_pszData(NULL),m_nLength(0)
+    : m_pszData(nullptr), m_nLength(0)
 {
-	cout << "생성 완료 " << endl;
+    cout << "생성 완료 " << endl;
 }
-CMyString:: CMyString(const CMyString& other)
-	: m_pszData(NULL), m_nLength(0)
+
+CMyString::CMyString(const char* pszParam)
+    : m_pszData(nullptr), m_nLength(0)
 {
-	//NULL Check
-	if (m_pszData != NULL)
-	{
-		delete[] m_pszData;
-	}
-	m_pszData = new char[other.m_nLength + 1];
-	strncpy_s(m_pszData, other.m_nLength, other.m_pszData, other.m_nLength);
-	m_pszData[other.m_nLength] = '\0';
-	m_nLength = other.m_nLength;
+    SetString(pszParam);
 }
-CMyString:: ~CMyString()
+
+CMyString::CMyString(const CMyString& other)
+    : m_pszData(nullptr), m_nLength(0)
 {
-	delete[] m_pszData;
-	cout << "CMyString이 소멸" << endl;
+    SetString(other.m_pszData);
 }
-// 대입 연산자
+
+CMyString::~CMyString()
+{
+    delete[] m_pszData;
+    cout << "CMyString이 소멸" << endl;
+}
+
 CMyString& CMyString::operator=(const CMyString& other)
 {
-	if (this == &other)
-	{
-		return *this;
-	}
-	if(m_pszData != NULL) delete[] m_pszData;
-	m_pszData = new char[other.m_nLength + 1];
-	strncpy_s(m_pszData, other.m_nLength + 1, other.m_pszData, other.m_nLength);
-	m_pszData[other.m_nLength] = '\0';
-	m_nLength = other.m_nLength;
-	return *this;
+    if (this == &other) {
+        return *this;
+    }
+    SetString(other.m_pszData);
+    return *this;
 }
 
-void CMyString::  SetString(const char* pszParam, const int Length)
+void CMyString::SetString(const char* pszParam)
 {
-	if(Length < MAXLENGTH)
-	{
-		if (m_pszData != NULL) delete[] m_pszData;
-		m_pszData = new char[Length + 1];
-		strncpy_s(m_pszData, Length + 1, pszParam, Length);
-		m_pszData[Length] = '\0';
-		m_nLength = Length;
+    if (pszParam == nullptr) {
+        cout << "NULL Pointer ERROR" << endl;
+        //Error
+    }
 
-	}
-	else
-	{
-		std:: cout << "CMyString:: SetString 버퍼 오버플로우 에러 발생"<< std:: endl;
-		//Error
-	}
+    int length = strlen(pszParam);
+    if (length > MAXLENGTH) {
+        cout << "String Length OverFlow Error" << endl;
+        //Error
+    }
+    if (length > 0)
+    {
+        if (m_pszData != nullptr) delete[] m_pszData;
+        m_pszData = new char[length + 1];
+        if (length > 0)
+        strncpy_s(m_pszData, length + 1, pszParam, length);
+        m_pszData[length] = '\0';
+        m_nLength = length;
+    }
+    else
+    {
+        cout << "입력된게 없습니다." << endl;
+    }
 }
 
-const char* CMyString::GetString(const int Length)
+const char* CMyString::GetString() const
 {
-	if (Length == m_nLength)
-	{
-		//cout << "m_pszData : " << m_pszData << endl;
-		return m_pszData;
-	}
-	return NULL;
-
+    return m_pszData;
 }
 
-void CMyString:: Release(void)
+void CMyString::Release()
 {
-	if (m_pszData != NULL) delete[] m_pszData;
-	m_pszData = NULL;
-	m_nLength = 0;
+    if (m_pszData != nullptr) delete[] m_pszData;
+    m_pszData = nullptr;
+    m_nLength = 0;
+}
+
+int CMyString::GetLength() const
+{
+    return m_nLength;
+}
+
+CMyString::operator const char* () const
+{
+    return m_pszData;
 }
